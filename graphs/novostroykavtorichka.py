@@ -5,7 +5,8 @@ import os
 
 
 def plot_type_distribution_by_district(flats_data):
-    districts = set(flat['district'] for flat in flats_data.values() if flat['district'] != 'мкр. УНЦ' and flat['district'] != 'мкр. Ботанический')
+    districts = set(flat['district'] for flat in flats_data.values() if flat['district'] != 'мкр. УНЦ' and
+                    flat['district'] != 'мкр. Ботанический')
 
     type_counts = {district: {'Новостройка': 0, 'Вторичка': 0} for district in districts}
 
