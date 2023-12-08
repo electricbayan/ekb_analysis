@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     for shop_address in shops.keys():  # Устанавливаем координаты для магазинов
         coords = ', '.join(fetch_coordinates(apikey, shop_address))
-        cur.execute(f"""UPDATE shops SET coords='{coords}' WHERE address={shop_address}""")
+        cur.execute(f"""UPDATE shops SET coords='{coords}' WHERE address='{shop_address}'""")
 
     for flat_id in flats.keys():  # Устанавливаем координаты для квартир
         coords = ', '.join(fetch_coordinates(apikey, flats[flat_id]['address']))

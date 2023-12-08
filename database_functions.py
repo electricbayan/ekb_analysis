@@ -15,7 +15,10 @@ def get_flats_data_from_db(connect) -> dict:
         d[string[0]]['living_square'] = float(string[6])
         d[string[0]]['type'] = string[7]
         d[string[0]]['district'] = string[3].split(', ')[2]
-        d[string[0]]['coords'] = string[8].replace(';', ',')
+        if string[8]:
+            d[string[0]]['coords'] = string[8].replace(';', ',')
+        else:
+            d[string[0]]['coords'] = None
         d[string[0]]['shops_nearby'] = int(string[9])
 
     return d
