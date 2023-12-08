@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-from time import sleep
+from time import sleep, time
 import sqlite3
 
 
@@ -21,9 +21,12 @@ def parse_cian_pages(pages: int, connect, time_wait=2) -> None:
                f"region=4743&room1=1&room2=1&room3=1&room4=1&room5=1&room6=1")
         page_req = requests.get(url)
         parser = BeautifulSoup(page_req.text, 'lxml')
+        parsed = []
         for i in parser.find_all('a', {'class': "_93444fe79c--link--eoxce"}):  # Парсинг каждого отдельного объявления
             link = i['href']
             flat_id = link[link.find('flat') + 5:-1]  # ID квартиры в Циане
+            if flat_id in parsed:
+                continue
             announcement_req = requests.get(link)
             parser2 = BeautifulSoup(announcement_req.text, 'lxml')
             price = parser2.find('div', {'data-testid': "price-amount"}).text.replace('\xa0', '').replace(' ', '')
@@ -51,10 +54,11 @@ def parse_cian_pages(pages: int, connect, time_wait=2) -> None:
             flat_type = parser2.find('div', {'data-name': "OfferSummaryInfoItem"}).text[9:]
 
             cursor.execute(f"""INSERT INTO flats(flat_id, price, link, address, desc, total_square, living_square, type) 
-                    VALUES({flat_id}, {price}, "{link}", "{address}", "{description}", 
+                    VALUES({flat_id}, {price}, "{link}", "{', '.join(address)}", "{', '.join(description)}", 
                     "{total_square}", "{living_square}", "{flat_type}")""")
 
             sleep(time_wait)  # Ожидание между запросами
+            parsed.append(flat_id)
     connect.commit()
 
 
@@ -81,9 +85,9 @@ def parse_shops(name: str, connect) -> None:
 
 if __name__ == '__main__':
     con = sqlite3.connect('db.sqlite')
-    # t = time()  # Замеряем время выполнения
-    # parse_cian_pages(1, con)
-    # print('Time passed for shops parsing:', time() - t)
+    t = time()  # Замеряем время выполнения
+    parse_cian_pages(1, con)
+    print('Time passed for shops parsing:', time() - t)
 
     shops = ['diksi', 'magnit', 'vernyi', 'ariant', 'pyaterochka']
     for shop_name in shops:
